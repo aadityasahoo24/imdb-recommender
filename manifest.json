@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "IMDb Movie Recommender",
+  "version": "1.0",
+  "description": "Recommends similar movies from an IMDb page.",
+  "permissions": ["storage", "scripting", "activeTab"],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://www.imdb.com/title/*"],
+      "js": ["content.js"]
+    }
+  ]
+}
