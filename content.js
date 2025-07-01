@@ -26,8 +26,10 @@
     movie.genres = genreElements.map(el => el.textContent.trim()).join('|');
 
     // Check if it's a TV Series or Movie based on metadata
-    const metadata = document.querySelector('meta[property="og:type"]');
-    movie.type = metadata ? (metadata.content.includes('video.tv_show') ? 'tv' : 'movie') : 'movie';
+const metadata = document.querySelector('meta[property="og:type"]');
+movie.type = metadata ? (metadata.content.includes('video.tv_show') ? 'tv' : 'movie') : 'movie';
+
+
     
     return movie;
   }

@@ -1,9 +1,11 @@
 let currentMovieTitle = '';
 
+const TMDB_API_KEY = 'ca0f0e581cfad472ea740994645eb2d9';
+
 async function fetchTmdbDetails(movie) {
   const type = movie.type === 'tv' ? 'tv' : 'movie';
   try {
-    const response = await fetch(`https://api.themoviedb.org/3/${type}/${movie.id}?api_key=ca0f0e581cfad472ea740994645eb2d9`);
+    const response = await fetch(`https://api.themoviedb.org/3/${type}/${movie.id}?api_key=${TMDB_API_KEY}`);
     const data = await response.json();
 
     return {

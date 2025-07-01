@@ -1,11 +1,13 @@
 let cachedRecommendations = [];
 let currentMovieTitle = '';
 
+const TMDB_API_KEY = 'ca0f0e581cfad472ea740994645eb2d9';
+
 async function getTmdbRecommendations(title, typeHint = null) {
   try {
     const [movieRes, tvRes] = await Promise.all([
-      fetch(`https://api.themoviedb.org/3/search/movie?api_key=ca0f0e581cfad472ea740994645eb2d9&query=${encodeURIComponent(title)}`),
-      fetch(`https://api.themoviedb.org/3/search/tv?api_key=ca0f0e581cfad472ea740994645eb2d9&query=${encodeURIComponent(title)}`)
+      fetch(`https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(title)}`),
+      fetch(`https://api.themoviedb.org/3/search/tv?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(title)}`)
     ]);
 
     const movieData = await movieRes.json();
@@ -27,7 +29,7 @@ async function getTmdbRecommendations(title, typeHint = null) {
 
     if (!bestMatch) return [];
 
-    const recUrl = `https://api.themoviedb.org/3/${bestMatch.type}/${bestMatch.id}/recommendations?api_key=ca0f0e581cfad472ea740994645eb2d9`;
+    const recUrl = `https://api.themoviedb.org/3/${bestMatch.type}/${bestMatch.id}/recommendations?api_key=${TMDB_API_KEY}`;
     const recRes = await fetch(recUrl);
     const recData = await recRes.json();
 
