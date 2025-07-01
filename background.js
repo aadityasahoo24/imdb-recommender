@@ -1,24 +1,31 @@
 let cachedRecommendations = [];
 let currentMovieTitle = '';
 
-async function getTmdbRecommendations(title) {
+async function getTmdbRecommendations(title, typeHint = null) {
   try {
-    // Search both movies and series
-    const movieRes = await fetch(`https://api.themoviedb.org/3/search/movie?api_key=ca0f0e581cfad472ea740994645eb2d9&query=${encodeURIComponent(title)}`);
-    const movieData = await movieRes.json();
+    const [movieRes, tvRes] = await Promise.all([
+      fetch(`https://api.themoviedb.org/3/search/movie?api_key=ca0f0e581cfad472ea740994645eb2d9&query=${encodeURIComponent(title)}`),
+      fetch(`https://api.themoviedb.org/3/search/tv?api_key=ca0f0e581cfad472ea740994645eb2d9&query=${encodeURIComponent(title)}`)
+    ]);
 
-    const tvRes = await fetch(`https://api.themoviedb.org/3/search/tv?api_key=ca0f0e581cfad472ea740994645eb2d9&query=${encodeURIComponent(title)}`);
+    const movieData = await movieRes.json();
     const tvData = await tvRes.json();
 
-    const combined = [
-      ...(movieData.results || []).map(item => ({ ...item, type: 'movie' })),
-      ...(tvData.results || []).map(item => ({ ...item, type: 'tv' }))
-    ];
+    let bestMatch;
 
-    if (!combined.length) return [];
+    if (typeHint === 'tv' && tvData.results.length) {
+      bestMatch = { ...tvData.results[0], type: 'tv' };
+    } else if (typeHint === 'movie' && movieData.results.length) {
+      bestMatch = { ...movieData.results[0], type: 'movie' };
+    } else {
+      const combined = [
+        ...(movieData.results || []).map(item => ({ ...item, type: 'movie' })),
+        ...(tvData.results || []).map(item => ({ ...item, type: 'tv' }))
+      ];
+      bestMatch = combined[0];
+    }
 
-    // Pick best match
-    const bestMatch = combined[0];
+    if (!bestMatch) return [];
 
     const recUrl = `https://api.themoviedb.org/3/${bestMatch.type}/${bestMatch.id}/recommendations?api_key=ca0f0e581cfad472ea740994645eb2d9`;
     const recRes = await fetch(recUrl);
@@ -36,17 +43,16 @@ async function getTmdbRecommendations(title) {
   }
 }
 
-
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "movieDataExtracted") {
   currentMovieTitle = message.movie.original_title;
-  const movieType = message.movie.type;
+  const typeHint = message.movie.type;
 
-  getTmdbRecommendations(currentMovieTitle, movieType).then(recs => {
-    cachedRecommendations = recs;
+  getTmdbRecommendations(message.movie.original_title, typeHint).then(tmdbRecs => {
+    cachedRecommendations = tmdbRecs;
     chrome.runtime.sendMessage({
       action: "recommendations",
-      data: recs,
+      data: tmdbRecs.slice(0, 5),
       movieTitle: currentMovieTitle
     });
   });
