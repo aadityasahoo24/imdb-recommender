@@ -1,7 +1,7 @@
 let cachedRecommendations = [];
 let currentMovieTitle = '';
 
-const TMDB_API_KEY = 'ca0f0e581cfad472ea740994645eb2d9';
+const TMDB_API_KEY = 'YOUR_API_KEY';
 
 async function getTmdbRecommendations(title, typeHint = null) {
   try {
