@@ -24,6 +24,11 @@
     // Genres
     const genreElements = [...document.querySelectorAll('[data-testid="genres"] a')];
     movie.genres = genreElements.map(el => el.textContent.trim()).join('|');
+
+    // Determine type
+const typeTag = document.querySelector('[data-testid="hero-title-block__metadata"] li')?.textContent.toLowerCase();
+movie.type = typeTag?.includes('tv series') || typeTag?.includes('tv') ? 'tv' : 'movie';
+
     
     return movie;
   }
